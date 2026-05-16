@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../model/event.dart';
@@ -72,19 +73,40 @@ class EventService {
 
   /// Cập nhật sự kiện
   static Future<bool> updateEvent(Event event) async {
-    if (event.id == null) return false;
+    if (event.id == null) {
+      debugPrint('updateEvent error: event.id is null');
+      return false;
+    }
 
     final token = _getToken();
-    final response = await http.put(
-      Uri.parse("$baseUrl/${event.id}"),
-      headers: {
-        "Content-Type": "application/json",
-        if (token != null) "Authorization": "Bearer $token",
-      },
-      body: jsonEncode(event.toJson()),
-    );
+    try {
+      final body = event.toJson();
+      debugPrint('Updating event ${event.id}');
+      debugPrint('Request body: $body');
 
-    return response.statusCode == 200;
+      final response = await http.put(
+        Uri.parse("$baseUrl/${event.id}"),
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(body),
+      );
+
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      final success = response.statusCode == 200 || response.statusCode == 204;
+      if (success) {
+        debugPrint('Update succeeded with status ${response.statusCode}');
+      } else {
+        debugPrint('Update failed with status ${response.statusCode}');
+      }
+      return success;
+    } catch (e, st) {
+      debugPrint('updateEvent exception: $e\n$st');
+      return false;
+    }
   }
 
   /// Xóa sự kiện
@@ -95,6 +117,6 @@ class EventService {
       headers: {if (token != null) "Authorization": "Bearer $token"},
     );
 
-    return response.statusCode == 200;
+    return response.statusCode == 200 || response.statusCode == 204;
   }
 }
