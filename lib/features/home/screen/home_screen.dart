@@ -18,6 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
   String userName = "";
   List<dynamic> events = [];
   bool isLoading = true;
+  int? _selectedMonthIndex;
+  String _selectedFilter = "Tất cả";
+
+  static const List<String> _months = [
+    "Th.1", "Th.2", "Th.3", "Th.4", "Th.5", "Th.6",
+    "Th.7", "Th.8", "Th.9", "Th.10", "Th.11", "Th.12",
+  ];
+
+  static const List<String> _filterOptions = [
+    "Tất cả",
+    "Sắp diễn ra",
+    "Đã diễn ra",
+    "Giá thấp nhất",
+    "Giá cao nhất",
+  ];
 
   @override
   void initState() {
@@ -104,17 +119,48 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Tìm kiếm sự kiện...",
-                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
+            SizedBox(
+              height: 44,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _months.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final selected = _selectedMonthIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedMonthIndex =
+                            selected ? null : index;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? Colors.deepPurple
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: selected
+                              ? Colors.deepPurple
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                      child: Text(
+                        _months[index],
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: selected
+                              ? Colors.white
+                              : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -152,11 +198,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   "Sự kiện nổi bật",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                TextButton(
-                  onPressed: () => Get.toNamed(AppRoutes.events),
-                  child: const Text(
-                    "Xem tất cả",
-                    style: TextStyle(color: Colors.deepPurple),
+                PopupMenuButton<String>(
+                  initialValue: _selectedFilter,
+                  onSelected: (value) {
+                    setState(() => _selectedFilter = value);
+                  },
+                  itemBuilder: (context) => _filterOptions
+                      .map(
+                        (opt) => PopupMenuItem<String>(
+                          value: opt,
+                          child: Text(opt),
+                        ),
+                      )
+                      .toList(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _selectedFilter,
+                        style: const TextStyle(color: Colors.deepPurple),
+                      ),
+                      const Icon(Icons.arrow_drop_down,
+                          color: Colors.deepPurple),
+                    ],
                   ),
                 ),
               ],
