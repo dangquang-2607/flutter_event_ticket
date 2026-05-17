@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../../../core/app_routes.dart';
+import '../../../core/constants.dart';
 import '../../profile/screen/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final box = GetStorage();
   String userName = "";
+  String userRole = "";
   List<dynamic> events = [];
   bool isLoading = true;
 
@@ -23,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     userName = box.read("userName") ?? "Người dùng";
+    userRole = box.read("role") ?? "User";
     fetchEvents();
   }
 
@@ -30,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Giữ nguyên logic fetch API của bạn
     try {
       final token = box.read("accessToken");
-      final url = Uri.parse("http://localhost:5054/api/events");
+      final url = Uri.parse(AppConstants.eventsEndpoint);
 
       final response = await http.get(
         url,
@@ -121,25 +124,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildAction(
-                  icon: Icons.event_available,
-                  label: "Mua vé",
-                  onTap: () => Get.toNamed(AppRoutes.events),
-                ),
-                _buildAction(
-                  icon: Icons.confirmation_number,
-                  label: "Vé của tôi",
-                  onTap: () {
-                    // TODO
-                  },
-                ),
-                _buildAction(
-                  icon: Icons.list_alt,
-                  label: "Sự kiện",
-                  onTap: () => Get.toNamed(AppRoutes.events),
-                ),
-              ],
+              children: userRole.toLowerCase() == "organizer"
+                  ? [
+                      _buildAction(
+                        icon: Icons.confirmation_number,
+                        label: "Quản lý vé",
+                        onTap: () {
+                          // TODO: Navigate to ticket management
+                        },
+                      ),
+                      _buildAction(
+                        icon: Icons.people,
+                        label: "Quản lý người dùng",
+                        onTap: () => Get.toNamed(AppRoutes.userManagement),
+                      ),
+                      _buildAction(
+                        icon: Icons.event_note,
+                        label: "Quản lý sự kiện",
+                        onTap: () => Get.toNamed(AppRoutes.events),
+                      ),
+                    ]
+                  : [
+                      _buildAction(
+                        icon: Icons.event_available,
+                        label: "Mua vé",
+                        onTap: () => Get.toNamed(AppRoutes.events),
+                      ),
+                      _buildAction(
+                        icon: Icons.confirmation_number,
+                        label: "Vé của tôi",
+                        onTap: () {
+                          // TODO
+                        },
+                      ),
+                      _buildAction(
+                        icon: Icons.list_alt,
+                        label: "Sự kiện",
+                        onTap: () => Get.toNamed(AppRoutes.events),
+                      ),
+                    ],
             ),
 
             const SizedBox(height: 30),

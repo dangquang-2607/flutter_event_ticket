@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import '../../../core/constants.dart';
 
 class EventMembersList extends StatefulWidget {
   final int eventId;
@@ -27,7 +28,7 @@ class _EventMembersListState extends State<EventMembersList> {
       final token = box.read("accessToken");
 
       final url = Uri.parse(
-        "http://localhost:5054/api/events/${widget.eventId}/members",
+        "${AppConstants.eventsEndpoint}/${widget.eventId}/members",
       );
       final response = await http.get(
         url,

@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import '../../../core/constants.dart';
 import '../model/event.dart';
 
 class EventService {
-  static const String baseUrl = "http://localhost:5054/api/events";
+  static const String baseUrl = AppConstants.eventsEndpoint;
 
   /// Lấy accessToken đã lưu khi login
   static String? _getToken() {

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:event_ticket_app/features/events/eventmembers/event_members_list.dart';
+import '../../../core/constants.dart';
 import '../services/event_service.dart';
 import '../model/event.dart';
 
@@ -50,7 +51,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       }
 
       final url = Uri.parse(
-        'http://localhost:5054/api/events/${widget.eventId}',
+        '${AppConstants.eventsEndpoint}/${widget.eventId}',
       );
       debugPrint('=== Fetching event detail from: $url ===');
 
@@ -210,7 +211,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (token == null || token.isEmpty) return;
 
       final response = await http.delete(
-        Uri.parse('http://localhost:5054/api/events/${widget.eventId}'),
+        Uri.parse('${AppConstants.eventsEndpoint}/${widget.eventId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',

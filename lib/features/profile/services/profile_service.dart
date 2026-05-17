@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import '../../../core/constants.dart';
 
 class ProfileService {
-  static const String _baseUrl = "http://localhost:5054/api";
+  static const String _baseUrl = AppConstants.apiBaseUrl;
 
   static Future<Map<String, dynamic>> getProfile() async {
     final box = GetStorage();

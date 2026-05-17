@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/constants.dart';
 
 class EventUserButtons extends StatefulWidget {
   final int eventId;
@@ -30,7 +31,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       // API check đăng ký
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/check/${widget.eventId}",
+        "${AppConstants.registrationsEndpoint}/check/${widget.eventId}",
       );
 
       final response = await http.get(
@@ -64,7 +65,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString("accessToken");
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/register-event",
+        "${AppConstants.registrationsEndpoint}/register-event",
       );
 
       final response = await http.post(
@@ -107,7 +108,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString("accessToken");
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/cancel-registration/${widget.eventId}",
+        "${AppConstants.registrationsEndpoint}/cancel-registration/${widget.eventId}",
       );
 
       final response = await http.post(

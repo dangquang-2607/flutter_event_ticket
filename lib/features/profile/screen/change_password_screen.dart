@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import '../../../core/constants.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -31,7 +32,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       }
 
       final response = await http.put(
-        Uri.parse("http://localhost:5054/api/profile/password"),
+        Uri.parse(AppConstants.profileEndpoint + "/password"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

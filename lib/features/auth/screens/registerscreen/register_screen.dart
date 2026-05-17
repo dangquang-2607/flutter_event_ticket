@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../core/constants.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -89,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     setState(() => isLoading = true);
 
-    final url = Uri.parse("http://localhost:5054/api/auth/register");
+    final url = Uri.parse(AppConstants.registerEndpoint);
     final body = jsonEncode({
       "userName": username,
       "password": password,

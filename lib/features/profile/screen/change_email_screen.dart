@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart'; // ✅ thay vì shared_preferences
+import '../../../core/constants.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
   const ChangeEmailScreen({super.key});
@@ -76,7 +77,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       }
 
       final response = await http.post(
-        Uri.parse("http://localhost:5054/api/profile/email/request-change"),
+        Uri.parse(AppConstants.profileEndpoint + "/email/request-change"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // ✅ truyền token đúng
