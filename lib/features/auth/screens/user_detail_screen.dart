@@ -203,6 +203,21 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                _showDeleteConfirmDialog();
+              },
+              icon: const Icon(Icons.delete_outline),
+              label: const Text("Xóa tài khoản"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -479,5 +494,55 @@ class _UserDetailScreenState extends State<UserDetailScreen>
       'Dec',
     ];
     return "${date.day} ${months[date.month - 1]} ${date.year}";
+  }
+
+  Future<void> _deleteUserAccount() async {
+    try {
+      final token = box.read("accessToken");
+      final url = Uri.parse(
+        "${AppConstants.adminUsersEndpoint}/${widget.user.userId}",
+      );
+
+      final response = await http.delete(
+        url,
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        Get.snackbar("Thành công", "Đã xóa tài khoản ${widget.user.userName}");
+        Get.back(); // Quay lại trang danh sách người dùng
+      } else {
+        Get.snackbar(
+          "Lỗi",
+          "Lỗi ${response.statusCode}: Không thể xóa tài khoản",
+        );
+      }
+    } catch (e) {
+      Get.snackbar("Lỗi", "Có lỗi xảy ra: $e");
+    }
+  }
+
+  void _showDeleteConfirmDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text(
+          "⚠️ Xóa tài khoản?",
+          style: TextStyle(color: Colors.red),
+        ),
+        content: Text(
+          "Bạn có chắc chắn muốn xóa tài khoản '${widget.user.userName}'? Hành động này không thể hoàn tác.",
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Hủy")),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _deleteUserAccount();
+            },
+            child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 }

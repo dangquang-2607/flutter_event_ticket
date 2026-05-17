@@ -50,9 +50,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         return;
       }
 
-      final url = Uri.parse(
-        '${AppConstants.eventsEndpoint}/${widget.eventId}',
-      );
+      final url = Uri.parse('${AppConstants.eventsEndpoint}/${widget.eventId}');
       debugPrint('=== Fetching event detail from: $url ===');
 
       final response = await http.get(
@@ -799,8 +797,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 iconColor: Colors.teal,
                                 label: 'Mở đăng ký',
                                 value: (event!['isRegistrationOpen'] ?? false)
-                                    ? 'Đã mở đăng ký'
-                                    : 'Chưa mở đăng ký',
+                                    ? 'Mở đăng ký'
+                                    : 'Đóng đăng ký',
                                 isLast: true,
                               ),
                             ],
