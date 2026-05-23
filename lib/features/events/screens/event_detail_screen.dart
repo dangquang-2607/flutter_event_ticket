@@ -94,7 +94,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             isLoading = false;
           });
 
-          debugPrint('Event state updated. Current event: ${event}');
+          debugPrint('Event state updated. Current event: $event');
         } catch (parseError) {
           debugPrint('JSON parse error: $parseError');
           if (mounted) {
@@ -440,7 +440,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: eventStatus,
+                    initialValue: eventStatus,
                     decoration: const InputDecoration(labelText: 'Trạng thái'),
                     items: statuses
                         .map(

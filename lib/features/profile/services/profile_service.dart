@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import '../../../core/constants.dart';
 
 class ProfileService {
   static const String _baseUrl = "http://localhost:5054/api";

@@ -7,6 +7,7 @@ import '../model/event.dart';
 
 class EventService {
   static const String baseUrl = AppConstants.eventsEndpoint;
+  static String? lastError;
 
   /// Lấy accessToken đã lưu khi login
   static String? _getToken() {
@@ -55,19 +56,38 @@ class EventService {
   /// Tạo sự kiện mới
   static Future<Event?> createEvent(Event event) async {
     final token = _getToken();
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {
-        "Content-Type": "application/json",
-        if (token != null) "Authorization": "Bearer $token",
-      },
-      body: jsonEncode(event.toJson()),
-    );
+    lastError = null;
+    try {
+      final body = jsonEncode(event.toJson());
+      debugPrint('Creating event POST $baseUrl');
+      debugPrint(
+        'Request headers: ${{"Content-Type": "application/json", if (token != null) "Authorization": "Bearer $token"}}',
+      );
+      debugPrint('Request body: $body');
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return Event.fromJson(data);
-    } else {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
+        body: body,
+      );
+
+      debugPrint('createEvent response status: ${response.statusCode}');
+      debugPrint('createEvent response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return Event.fromJson(data);
+      } else {
+        lastError = 'Status ${response.statusCode}: ${response.body}';
+        return null;
+      }
+    } catch (e, st) {
+      final msg = 'Exception: $e';
+      debugPrint('createEvent exception: $msg\n$st');
+      lastError = msg;
       return null;
     }
   }

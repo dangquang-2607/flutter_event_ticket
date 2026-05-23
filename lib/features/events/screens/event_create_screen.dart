@@ -85,9 +85,8 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thành công")));
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thất bại")));
+      final err = EventService.lastError ?? "Tạo sự kiện thất bại";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
     }
   }
 
@@ -356,7 +355,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     DropdownButtonFormField<String>(
-                      value: eventStatus,
+                      initialValue: eventStatus,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         enabledBorder: const UnderlineInputBorder(

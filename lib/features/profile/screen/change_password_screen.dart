@@ -32,7 +32,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       }
 
       final response = await http.put(
-        Uri.parse(AppConstants.profileEndpoint + "/password"),
+        Uri.parse("${AppConstants.profileEndpoint}/password"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

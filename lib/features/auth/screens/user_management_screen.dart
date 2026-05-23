@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../../../core/constants.dart';
 import '../model/user_model.dart';
-import '../../../core/app_routes.dart';
+// import '../../../core/app_routes.dart';
 import 'user_detail_screen.dart';
 
 class UserManagementScreen extends StatefulWidget {

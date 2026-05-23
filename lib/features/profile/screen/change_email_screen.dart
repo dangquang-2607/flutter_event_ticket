@@ -77,7 +77,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       }
 
       final response = await http.post(
-        Uri.parse(AppConstants.profileEndpoint + "/email/request-change"),
+        Uri.parse("${AppConstants.profileEndpoint}/email/request-change"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // ✅ truyền token đúng
