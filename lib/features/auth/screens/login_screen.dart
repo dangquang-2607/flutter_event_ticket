@@ -1,9 +1,10 @@
 import 'dart:ui';
-import 'package:event_ticket_app/features/auth/screens/registerscreen/register_screen.dart';
+import 'package:event_ticket_app/features/auth/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/app_routes.dart';
-import '../services/auth_service.dart';
+import '../../../core/routes/app_routes.dart';
+import '../../../data/api/api_client.dart';
+import '../../../data/services/auth_service.dart';
 import 'package:get_storage/get_storage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -72,35 +73,51 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> handleLogin() async {
     FocusScope.of(context).unfocus();
     setState(() => isLoading = true);
-    final response = await AuthService.login(
-      userCtrl.text.trim(),
-      passCtrl.text.trim(),
-    );
-    await Future.delayed(const Duration(milliseconds: 300));
-    setState(() => isLoading = false);
-
-    if (response != null && mounted) {
-      //final prefs = await SharedPreferences.getInstance();
-      // await prefs.setString("accessToken", response.accessToken ?? "");
-      // await prefs.setString("role", response.role ?? "");
-      final box = GetStorage(); // Sử dụng GetStorage để lưu trữ dữ liệu
-      await box.write("accessToken", response.accessToken);
-      await box.write("role", response.role);
-      await box.write("userName", response.userName);
-      Get.offAllNamed(AppRoutes.home, arguments: response);
-      //Get.offAllNamed(AppRoutes.home, arguments: response);
-    } else {
-      Get.snackbar(
-        "Đăng nhập thất bại",
-        "Sai tài khoản hoặc mật khẩu.",
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        borderRadius: 12,
-        margin: const EdgeInsets.all(16),
-        icon: const Icon(Icons.error_outline_rounded, color: Colors.white),
+    try {
+      final response = await AuthService.login(
+        userCtrl.text.trim(),
+        passCtrl.text.trim(),
       );
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() => isLoading = false);
+
+      if (response != null) {
+        final box = GetStorage();
+        await box.write("accessToken", response.accessToken);
+        await box.write("role", response.role);
+        await box.write("userName", response.userName);
+
+        if (response.expiresIn > 0) {
+          final expiry = DateTime.now().add(
+            Duration(seconds: response.expiresIn),
+          );
+          await box.write("tokenExpiry", expiry.toIso8601String());
+        }
+
+        Get.offAllNamed(AppRoutes.home, arguments: response);
+      } else {
+        _showLoginError("Sai tài khoản hoặc mật khẩu.");
+      }
+    } on ApiException catch (e) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() => isLoading = false);
+      _showLoginError(e.message);
     }
+  }
+
+  void _showLoginError(String message) {
+    Get.snackbar(
+      "Đăng nhập thất bại",
+      message,
+      backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      borderRadius: 12,
+      margin: const EdgeInsets.all(16),
+      icon: const Icon(Icons.error_outline_rounded, color: Colors.white),
+    );
   }
 
   void goToRegister() {
@@ -311,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen>
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF311B92), // Màu chữ là màu nền đậm
+          foregroundColor: const Color(0xFF311B92),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

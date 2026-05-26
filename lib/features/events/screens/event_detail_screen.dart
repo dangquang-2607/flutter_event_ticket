@@ -1,14 +1,14 @@
 import 'dart:convert';
-import 'package:event_ticket_app/features/events/screens/event_user_buttons.dart';
+import 'package:event_ticket_app/features/events/widgets/event_user_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:event_ticket_app/features/events/eventmembers/event_members_list.dart';
-import '../../../core/constants.dart';
-import '../services/event_service.dart';
-import '../model/event.dart';
+import 'package:event_ticket_app/features/events/widgets/event_members_list.dart';
+import '../../../core/constants/api_constants.dart';
+import '../../../data/services/event_service.dart';
+import '../../../data/models/event_model.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final int eventId;
@@ -218,11 +218,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
       if (response.statusCode == 204 || response.statusCode == 200) {
         if (!mounted) return;
-        Navigator.pop(context, true);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('✅ Sự kiện đã bị xóa')));
+        Navigator.pop(context, true);
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('❌ Lỗi khi xóa: ${response.statusCode}')),
         );
@@ -287,6 +288,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               lastDate: DateTime(2100),
             );
             if (pickedDate == null) return;
+            if (!context.mounted) return;
 
             final pickedTime = await showTimePicker(
               context: context,
@@ -396,10 +398,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.blue.withOpacity(0.3),
+                            color: Colors.blue.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(

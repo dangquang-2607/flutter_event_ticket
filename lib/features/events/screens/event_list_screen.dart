@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import '../services/event_service.dart';
-import '../model/event.dart';
+import '../../../data/services/event_service.dart';
+import '../../../data/models/event_model.dart';
 import 'event_detail_screen.dart';
 import 'event_create_screen.dart';
 
@@ -77,9 +78,8 @@ class _EventListScreenState extends State<EventListScreen> {
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {
-                final created = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EventCreateScreen()),
+                final created = await Get.to(
+                  () => const EventCreateScreen(),
                 );
                 if (created == true) {
                   _loadEvents();
@@ -126,13 +126,10 @@ class _EventListScreenState extends State<EventListScreen> {
                     ],
                   ),
                   onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EventDetailScreen(
-                          eventId: event.id!,
-                          userRole: userRole,
-                        ),
+                    final result = await Get.to(
+                      () => EventDetailScreen(
+                        eventId: event.id!,
+                        userRole: userRole,
                       ),
                     );
                     if (result == true) {

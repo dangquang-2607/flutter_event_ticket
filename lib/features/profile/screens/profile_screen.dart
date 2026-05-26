@@ -1,11 +1,11 @@
 // Import service mới và các thư viện cần thiết
 import 'package:event_ticket_app/features/auth/screens/login_screen.dart';
-import 'package:event_ticket_app/features/profile/screen/change_password_screen.dart';
-import 'package:event_ticket_app/features/profile/services/profile_service.dart';
+import 'package:event_ticket_app/features/profile/screens/change_password_screen.dart';
+import 'package:event_ticket_app/data/services/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:event_ticket_app/features/profile/screen/change_email_screen.dart';
+import 'package:event_ticket_app/features/profile/screens/change_email_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -33,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     } else {
       setState(() {
-        _futureProfile = ProfileService.getProfile();
+        _futureProfile = ProfileService.getProfileMap();
       });
     }
   }
@@ -202,24 +202,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.edit_outlined,
                       title: "Chỉnh sửa hồ sơ",
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChangeEmailScreen(),
-                          ),
-                        );
+                        Get.to(() => const ChangeEmailScreen());
                       },
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.edit_outlined,
                       title: "Thay đổi mật khẩu",
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChangePasswordScreen(),
-                          ),
-                        );
+                        Get.to(() => const ChangePasswordScreen());
                       },
                     ),
                     _buildProfileMenuItem(

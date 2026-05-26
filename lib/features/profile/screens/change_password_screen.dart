@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:get_storage/get_storage.dart';
-import '../../../core/constants.dart';
+import '../../../data/services/profile_service.dart';
+import '../../../data/api/api_client.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -24,59 +22,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final box = GetStorage();
-      final token = box.read("accessToken");
-
-      if (token == null) {
-        throw Exception("Token không tồn tại, vui lòng đăng nhập lại.");
-      }
-
-      final response = await http.put(
-        Uri.parse("${AppConstants.profileEndpoint}/password"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-        body: jsonEncode({
-          "currentPassword": _currentPassCtrl.text.trim(),
-          "newPassword": _newPassCtrl.text.trim(),
-          "confirmNewPassword": _confirmPassCtrl.text.trim(),
-        }),
+      final msg = await ProfileService.changePassword(
+        currentPassword: _currentPassCtrl.text.trim(),
+        newPassword: _newPassCtrl.text.trim(),
+        confirmNewPassword: _confirmPassCtrl.text.trim(),
       );
 
-      // Log để debug
-      debugPrint("🔑 Status: ${response.statusCode}");
-      debugPrint("📩 Body: ${response.body}");
-
-      Map<String, dynamic> data = {};
-      try {
-        data = jsonDecode(response.body);
-      } catch (_) {
-        data = {"message": response.body}; // fallback nếu backend trả string
-      }
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Đổi mật khẩu thành công."),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pop();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Có lỗi xảy ra."),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.green),
+      );
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Lỗi: $e"), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
