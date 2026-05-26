@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
-import '../../../core/constants.dart';
+import '../../../core/constants/api_constants.dart';
 
 class EventMembersList extends StatefulWidget {
   final int eventId;
@@ -45,6 +45,7 @@ class _EventMembersListState extends State<EventMembersList> {
         });
       } else {
         setState(() => isLoading = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -55,6 +56,7 @@ class _EventMembersListState extends State<EventMembersList> {
       }
     } catch (e) {
       setState(() => isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));

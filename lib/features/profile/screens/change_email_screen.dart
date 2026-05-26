@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:get_storage/get_storage.dart'; // ✅ thay vì shared_preferences
-import '../../../core/constants.dart';
+import '../../../data/services/profile_service.dart';
+import '../../../data/api/api_client.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
   const ChangeEmailScreen({super.key});
@@ -64,53 +62,30 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   }
 
   Future<void> _submitChangeEmail() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      final box = GetStorage();
-      final token = box.read("accessToken"); // ✅ lấy token đã lưu
-
-      if (token == null) {
-        throw Exception("Token không tồn tại, vui lòng đăng nhập lại.");
-      }
-
-      final response = await http.post(
-        Uri.parse(AppConstants.profileEndpoint + "/email/request-change"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token", // ✅ truyền token đúng
-        },
-        body: jsonEncode({"newEmail": _newEmailController.text.trim()}),
+      final msg = await ProfileService.requestChangeEmail(
+        _newEmailController.text.trim(),
       );
 
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Bạn đã thay đổi thành công."),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pop();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Có lỗi xảy ra."),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.green),
+      );
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Lỗi: $e"), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

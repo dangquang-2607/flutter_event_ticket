@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../model/event.dart';
-import '../services/event_service.dart';
+import '../../../data/models/event_model.dart';
+import '../../../data/services/event_service.dart';
 
 class EventCreateScreen extends StatefulWidget {
   const EventCreateScreen({super.key});
@@ -68,8 +68,8 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       location: locationCtrl.text,
       startTime: startTime!,
       endTime: endTime!,
-      maxTickets: int.parse(maxTicketsCtrl.text),
-      price: double.parse(priceCtrl.text),
+      maxTickets: int.tryParse(maxTicketsCtrl.text) ?? 0,
+      price: double.tryParse(priceCtrl.text) ?? 0.0,
       isRegistrationOpen: isRegistrationOpen,
       status: eventStatus,
       registeredTickets: registeredTickets,
@@ -80,11 +80,13 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
     setState(() => isLoading = false);
 
     if (created != null) {
-      Navigator.pop(context, true); // ✅ quay lại list screen và refresh
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thành công")));
+      Navigator.pop(context, true);
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thất bại")));
@@ -102,6 +104,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       lastDate: DateTime(2100),
     );
     if (pickedDate == null) return;
+    if (!mounted) return;
 
     final pickedTime = await showTimePicker(
       context: context,
@@ -356,7 +359,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     DropdownButtonFormField<String>(
-                      value: eventStatus,
+                      initialValue: eventStatus,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         enabledBorder: const UnderlineInputBorder(
@@ -476,9 +479,11 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      border: Border.all(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       children: [

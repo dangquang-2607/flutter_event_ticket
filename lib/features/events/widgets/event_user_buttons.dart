@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants.dart';
+import 'package:get_storage/get_storage.dart';
+import '../../../core/constants/api_constants.dart';
 
 class EventUserButtons extends StatefulWidget {
   final int eventId;
@@ -22,14 +22,18 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     checkRegistration();
   }
 
+  /// Lấy token từ GetStorage (thống nhất với toàn bộ ứng dụng)
+  String? _getToken() {
+    final box = GetStorage();
+    return box.read("accessToken");
+  }
+
   // Kiểm tra trạng thái đăng ký từ backend
   Future<void> checkRegistration() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final token = _getToken();
 
-      // API check đăng ký
       final url = Uri.parse(
         "${AppConstants.registrationsEndpoint}/check/${widget.eventId}",
       );
@@ -44,7 +48,6 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Giả sử API trả về { "isRegistered": true/false }
         setState(() {
           isRegistered = data["isRegistered"] ?? false;
         });
@@ -58,12 +61,11 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     }
   }
 
-  // 👈 Tham gia sự kiện
+  // Tham gia sự kiện
   Future<void> registerEvent() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final token = _getToken();
       final url = Uri.parse(
         "${AppConstants.registrationsEndpoint}/register-event",
       );
@@ -79,20 +81,24 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() => isRegistered = true);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Đăng ký sự kiện thành công")),
         );
       } else if (response.statusCode == 400) {
         final data = jsonDecode(response.body);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("❌ ${data["message"] ?? "Đã xảy ra lỗi"}")),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("❌ Lỗi: ${response.statusCode}")),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("❌ Lỗi: $e")));
@@ -101,12 +107,11 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     }
   }
 
-  // 👈 Hủy tham gia sự kiện
+  // Hủy tham gia sự kiện
   Future<void> cancelRegistration() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final token = _getToken();
       final url = Uri.parse(
         "${AppConstants.registrationsEndpoint}/cancel-registration/${widget.eventId}",
       );
@@ -122,15 +127,18 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() => isRegistered = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Hủy đăng ký thành công")),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("❌ Lỗi: ${response.statusCode}")),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("❌ Lỗi: $e")));
@@ -170,3 +178,4 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     );
   }
 }
+

@@ -12,6 +12,16 @@ class AppConstants {
   // Events endpoints
   static const String eventsEndpoint = "$apiBaseUrl/events";
 
+  // Ticket endpoints
+  static const String ticketTypesEndpoint = "$apiBaseUrl/ticket-types";
+  static const String ticketsEndpoint = "$apiBaseUrl/tickets";
+
+  // Statistics endpoints
+  static const String statisticsRevenueEndpoint =
+      "$apiBaseUrl/admin/statistics/revenue";
+  static const String statisticsEventsEndpoint =
+      "$apiBaseUrl/admin/statistics/events";
+
   // Profile endpoints
   static const String profileEndpoint = "$apiBaseUrl/profile";
 
