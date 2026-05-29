@@ -2,11 +2,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
 import '../../../core/constants/api_constants.dart';
+import '../screens/payment_screen.dart';
 
 class EventUserButtons extends StatefulWidget {
   final int eventId;
-  const EventUserButtons({super.key, required this.eventId});
+  final String eventTitle;
+  final double price;
+
+  const EventUserButtons({
+    super.key,
+    required this.eventId,
+    required this.eventTitle,
+    required this.price,
+  });
 
   @override
   State<EventUserButtons> createState() => _EventUserButtonsState();
@@ -147,29 +157,110 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     }
   }
 
+  Future<void> registerEventAndShowSuccess() async {
+    setState(() => isLoading = true);
+    try {
+      final token = _getToken();
+      final url = Uri.parse(
+        "${AppConstants.registrationsEndpoint}/register-event",
+      );
+
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({"eventId": widget.eventId}),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() => isRegistered = true);
+        if (!mounted) return;
+        Get.to(() => PaymentSuccessScreen(eventTitle: widget.eventTitle))?.then((_) {
+          checkRegistration();
+        });
+      } else {
+        final data = jsonDecode(response.body);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ ${data["message"] ?? "Đăng ký thất bại"}")),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Lỗi kết nối: $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Center(child: CircularProgressIndicator());
+    const primaryAmethyst = Color(0xFF7C3AED);
+    const accentTeal = Color(0xFF0D9488);
+    const crimsonRed = Color(0xFFEF4444);
+
+    if (isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(12.0),
+          child: CircularProgressIndicator(color: primaryAmethyst),
+        ),
+      );
+    }
 
     return Row(
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: isRegistered ? null : registerEvent,
+            onPressed: isRegistered
+                ? null
+                : () {
+                    if (widget.price > 0) {
+                      Get.to(() => PaymentScreen(
+                            eventId: widget.eventId,
+                            eventTitle: widget.eventTitle,
+                            price: widget.price,
+                          ))?.then((_) {
+                        checkRegistration();
+                      });
+                    } else {
+                      registerEventAndShowSuccess();
+                    }
+                  },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: accentTeal,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFFE2E8F0),
+              disabledForegroundColor: const Color(0xFF94A3B8),
               minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+              textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
-            child: const Text("Tham gia sự kiện"),
+            child: Text(isRegistered ? "Đã đăng ký" : "Tham gia sự kiện"),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton(
             onPressed: isRegistered ? cancelRegistration : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: crimsonRed,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFFF1F5F9),
+              disabledForegroundColor: const Color(0xFFCBD5E1),
               minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+              textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             child: const Text("Hủy tham gia"),
           ),

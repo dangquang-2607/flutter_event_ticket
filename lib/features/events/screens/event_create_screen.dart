@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/event_model.dart';
 import '../../../data/services/event_service.dart';
+import '../../../data/api/api_client.dart';
 
 class EventCreateScreen extends StatefulWidget {
   const EventCreateScreen({super.key});
@@ -75,20 +76,35 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       registeredTickets: registeredTickets,
     );
 
-    final created = await EventService.createEvent(newEvent);
+    try {
+      final created = await EventService.createEvent(newEvent);
 
-    setState(() => isLoading = false);
+      setState(() => isLoading = false);
 
-    if (created != null) {
+      if (created != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thành công")));
+        Navigator.pop(context, true);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Tạo sự kiện thất bại")),
+        );
+      }
+    } on ApiException catch (e) {
+      setState(() => isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Tạo sự kiện thành công")));
-      Navigator.pop(context, true);
-    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } catch (e) {
+      setState(() => isLoading = false);
       if (!mounted) return;
-      final err = EventService.lastError ?? "Tạo sự kiện thất bại";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi: $e")),
+      );
     }
   }
 

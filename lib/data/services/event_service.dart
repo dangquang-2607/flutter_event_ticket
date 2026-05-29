@@ -37,16 +37,12 @@ class EventService {
 
   /// Tạo sự kiện mới
   static Future<Event?> createEvent(Event event) async {
-    try {
-      final data = await ApiClient.post(
-        _baseUrl,
-        body: event.toJson(),
-      );
-      if (data != null) return Event.fromJson(data);
-      return null;
-    } on ApiException {
-      return null;
-    }
+    final data = await ApiClient.post(
+      _baseUrl,
+      body: event.toJson(),
+    );
+    if (data != null) return Event.fromJson(data);
+    return null;
   }
 
   /// Cập nhật sự kiện

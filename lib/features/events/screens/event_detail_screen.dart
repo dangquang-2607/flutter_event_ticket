@@ -609,17 +609,24 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(icon, color: iconColor, size: 24),
-              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: Color(0xFF475569),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -629,7 +636,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Color(0xFF0F172A),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -640,18 +647,31 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ],
           ),
         ),
-        if (!isLast) Divider(height: 1, color: Colors.grey[200], indent: 52),
+        if (!isLast) const Divider(height: 1, color: Color(0xFFE2E8F0), indent: 60),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryAmethyst = Color(0xFF7C3AED);
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Chi tiết sự kiện'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        title: const Text(
+          'Chi tiết sự kiện',
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
         actions: [
-          // Refresh button for testing
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: fetchEventDetail,
@@ -676,9 +696,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: primaryAmethyst))
           : event == null
-          ? const Center(child: Text('Không có dữ liệu'))
+          ? const Center(child: Text('Không có dữ liệu', style: TextStyle(color: Color(0xFF475569))))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,6 +714,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           'assets/images/events/event.png',
                           fit: BoxFit.cover,
                         ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.black.withValues(alpha: 0.4),
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.4),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
                         // Status badge
                         Positioned(
                           top: 12,
@@ -704,8 +737,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black54,
+                              color: Colors.black.withValues(alpha: 0.65),
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white24),
                             ),
                             child: Text(
                               event!['status'] ?? 'N/A',
@@ -730,26 +764,34 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         Text(
                           event!['title'] ?? 'Không có tiêu đề',
                           style: const TextStyle(
-                            fontSize: 28,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
                             height: 1.3,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         // Info cards
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[200]!),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
                           ),
                           child: Column(
                             children: [
                               // Location
                               _buildInfoItem(
                                 icon: Icons.location_on,
-                                iconColor: Colors.red,
+                                iconColor: const Color(0xFFEF4444),
                                 label: 'Địa điểm',
                                 value: event!['location'] ?? 'Không rõ',
                                 isFirst: true,
@@ -757,21 +799,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               // Start time
                               _buildInfoItem(
                                 icon: Icons.event_available,
-                                iconColor: Colors.deepPurple,
+                                iconColor: primaryAmethyst,
                                 label: 'Bắt đầu',
                                 value: _formatDateTime(event!['startTime']),
                               ),
                               // End time
                               _buildInfoItem(
                                 icon: Icons.event_busy,
-                                iconColor: Colors.green,
+                                iconColor: const Color(0xFFF59E0B),
                                 label: 'Kết thúc',
                                 value: _formatDateTime(event!['endTime']),
                               ),
                               // Price
                               _buildInfoItem(
                                 icon: Icons.local_offer,
-                                iconColor: Colors.orange,
+                                iconColor: const Color(0xFF0D9488),
                                 label: 'Giá vé',
                                 value: _formatPrice(
                                   event!['ticketPrice'] ?? event!['price'] ?? 0,
@@ -780,7 +822,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               // Max tickets
                               _buildInfoItem(
                                 icon: Icons.confirmation_number,
-                                iconColor: Colors.blue,
+                                iconColor: const Color(0xFF3B82F6),
                                 label: 'Vé tối đa',
                                 value:
                                     '${event!['maxAttendees'] ?? event!['maxTickets'] ?? 0} vé',
@@ -788,7 +830,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               // Registered
                               _buildInfoItem(
                                 icon: Icons.people,
-                                iconColor: Colors.purple,
+                                iconColor: const Color(0xFF8B5CF6),
                                 label: 'Đã đăng ký',
                                 value:
                                     '${event!['registeredCount'] ?? event!['registeredTickets'] ?? 0} người',
@@ -796,7 +838,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               // Registration status
                               _buildInfoItem(
                                 icon: Icons.check_circle,
-                                iconColor: Colors.teal,
+                                iconColor: const Color(0xFF10B981),
                                 label: 'Mở đăng ký',
                                 value: (event!['isRegistrationOpen'] ?? false)
                                     ? 'Mở đăng ký'
@@ -811,26 +853,35 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
                         // Description section
                         const Text(
-                          'Mô tả',
+                          'Mô tả sự kiện',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey[200]!),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
                           ),
                           child: Text(
                             event!['description'] ?? 'Không có mô tả',
                             style: const TextStyle(
                               fontSize: 15,
                               height: 1.6,
-                              color: Colors.black87,
+                              color: Color(0xFF475569),
                             ),
                           ),
                         ),
@@ -839,10 +890,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
                         // Members section
                         EventMembersList(eventId: widget.eventId),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
-                        // User buttons
-                        if (isUser) EventUserButtons(eventId: widget.eventId),
+                        if (isUser)
+                          EventUserButtons(
+                            eventId: widget.eventId,
+                            eventTitle: event!['title'] ?? 'Sự kiện',
+                            price: double.tryParse((event!['ticketPrice'] ?? event!['price'] ?? 0).toString()) ?? 0.0,
+                          ),
                       ],
                     ),
                   ),

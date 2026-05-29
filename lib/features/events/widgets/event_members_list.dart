@@ -44,49 +44,90 @@ class _EventMembersListState extends State<EventMembersList> {
           isLoading = false;
         });
       } else {
-        setState(() => isLoading = false);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "❌ Lỗi tải danh sách tham gia: ${response.statusCode}",
-            ),
-          ),
-        );
+        setState(() {
+          members = [];
+          isLoading = false;
+        });
+        debugPrint("Lỗi tải danh sách tham gia: ${response.statusCode}");
       }
     } catch (e) {
       setState(() => isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+      debugPrint("Lỗi khi tải thành viên sự kiện: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryAmethyst = Color(0xFF7C3AED);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(height: 30),
-        const Text(
-          "Người tham gia",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        const Divider(height: 30, color: Color(0xFFE2E8F0)),
+        Text(
+          "Người tham gia (${members.length})",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: CircularProgressIndicator(color: primaryAmethyst),
+              ))
             : members.isEmpty
-            ? const Text("Chưa có người tham gia nào.")
+            ? const Text(
+                "Chưa có người tham gia nào (0).",
+                style: TextStyle(color: Color(0xFF475569), fontSize: 14),
+              )
             : Column(
                 children: members.map((m) {
                   final email = m["email"] ?? "N/A";
-                  final date =
-                      m["registrationDate"]?.toString().substring(0, 16) ?? "";
-                  return ListTile(
-                    leading: const Icon(Icons.person, color: Colors.blue),
-                    title: Text(email),
-                    subtitle: Text("Đăng ký: $date"),
+                  String date = "";
+                  if (m["registrationDate"] != null) {
+                    try {
+                      final parsedDate = DateTime.parse(m["registrationDate"]);
+                      date = "${parsedDate.day}/${parsedDate.month}/${parsedDate.year}";
+                    } catch (_) {
+                      date = m["registrationDate"].toString().substring(0, 10);
+                    }
+                  } else {
+                    date = "N/A";
+                  }
+                  
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.person, color: primaryAmethyst, size: 20),
+                      ),
+                      title: Text(
+                        email,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      subtitle: Text(
+                        "Đăng ký ngày: $date",
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
